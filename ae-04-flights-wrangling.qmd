@@ -70,7 +70,8 @@ select(contains("arr"))
 ```{r}
 #| label: slice
 
-# add code here
+flights %>%
+  slice_head(n = 5)
 ```
 
 -   Display the last two rows of the `flights` data frame.
@@ -78,7 +79,8 @@ select(contains("arr"))
 ```{r}
 #| label: last-two
 
-# add code here
+flights %>%
+  slice_tail(n = 2)
 ```
 
 ## Exercise 5 - `arrange()`
@@ -88,19 +90,21 @@ select(contains("arr"))
 ```{r}
 #| label: arrange-delays
 
-# add code here
+flights %>%
+  arrange(dep_delay)
 ```
 
 -   Question: What does it mean for the `dep_delay` to have a negative value?
 
-Add your response here.
+It likely means that the flight departed early. 
 
 -   Arrange the data by descending departure delay, so the flights with the longest departure delays will be at the top.
 
 ```{r}
 #| label: arrange-delays-desc
 
-# add code here
+flights %>%
+  arrange(desc(dep_delay))
 ```
 
 -   **Your turn:** Create a data frame that only includes the plane tail number (`tailnum`), carrier (`carrier`), and departure delay for the flight with the longest departure delay. What is the plane tail number (`tailnum`) for this flight?
@@ -108,8 +112,12 @@ Add your response here.
 ```{r}
 #| label: longest-delay
 
-# add code here
+flights %>%
+  select("tailnum", "carrier") %>% 
+  arrange(desc("dep_delay")) %>% 
+  slice_head(n = 1)
 ```
+The tail number for this flight is N14228. 
 
 ## Exercise 6 - `filter()`
 
@@ -118,7 +126,8 @@ Add your response here.
 ```{r}
 #| label: rdu
 
-# add code here
+flights%>%
+  filter(dest == "RDU")
 ```
 
 -   Filter for all rows where the destination airport is RDU and the arrival delay is less than 0.
@@ -126,12 +135,13 @@ Add your response here.
 ```{r}
 #| label: rdu-ontime
 
-# add code here
+flights %>%
+  filter(dest == "RDU" & arr_delay < 0)
 ```
 
 -   **Your turn:** Describe what the code is doing in words.
 
-Add response here.
+The code below is finding rows (flights) within the "flights" dataset where the destination is either "RDU" or "GSO" and the arrival and deparure delays are both less than 0. 
 
 ```{r}
 #| label: nc-early
@@ -168,24 +178,28 @@ flights |>
 ```{r}
 #| label: count-dest
 
-# add code here
+flights %>%
+  count(origin, dest, sort = TRUE)
 ```
 
--   In which month was there the fewest number of flights? How many flights were there in that month?
+-   In which month was there the fewest number of flights? How many flights were there in that month? 
 
 ```{r}
 #| label: count-month
-
-# add code here
+flights %>%
+  count(month, sort = TRUE)
 ```
+The fewest flights were in February with 24951 flights. 
 
 -   **Your turn:** On which date (month + day) was there the largest number of flights? How many flights were there on that day?
 
 ```{r}
 #| label: count-date
 
-# add code here
+flights %>%
+  count(month, day, sort = TRUE)
 ```
+The day with the most flights was November 27th with 1014 flights.
 
 ## Exercise 8 - `mutate()`
 
@@ -194,7 +208,9 @@ flights |>
 ```{r}
 #| label: calculate-mph
 
-# add code here
+flights %>%
+  mutate(air_time / 60,
+    mph = distance/air_time)
 ```
 
 -   **Your turn:** First, count the number of flights each month, and then calculate the proportion of flights in each month. What proportion of flights take place in July?
@@ -202,15 +218,23 @@ flights |>
 ```{r}
 #| label: months-prop
 
-# add code here
+flights %>%
+  count(month, sort = TRUE) %>%
+  mutate(month_prop = n/sum(n)) %>%
+  filter(month == 7)
+  
 ```
+The proportion of flights that take place in July is 0.08737262, or 8.73%
 
 -   Create a new variable, `rdu_bound`, which indicates whether the flight is to RDU or not. Then, for each departure airport (`origin`), calculate what proportion of flights originating from that airport are to RDU.
 
 ```{r}
 #| label: rdu-origin-prop
-
-# add code here
+flights %>%
+  mutate(rdu_bound = if_else(dest == "RDU", "YES", "NO")) %>%
+  count(rdu_bound, origin, sort = TRUE) %>%
+  filter(rdu_bound == "YES")
+  
 ```
 
 ## Exercise 9 - `summarize()`
